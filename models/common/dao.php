@@ -14,8 +14,6 @@
             $this->props = $props;
             $this->refs = $refs;
         }
-
-        protected abstract static function getInstance();
         
         public function create($data) {
             $diff = array_diff_key($data, $this->props);
@@ -117,10 +115,10 @@
             }
 
             foreach($items as &$item) {
-                foreach($this->refs as $column => $findFunc) {
+                foreach($this->refs as $column => $class) {
                     if (isset($item[$column]) && is_int($item[$column])) {
                         $newColumn = rtrim($column, 'Id');
-                        $item[$newColumn] = $findFunc($item[$column]);
+                        $item[$newColumn] = $class::getInstance()->findByPk($item[$column]);
                     }
                 }
             }

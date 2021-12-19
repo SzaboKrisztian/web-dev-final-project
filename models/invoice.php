@@ -17,7 +17,7 @@
                 'BillingPostalCode' => 'str',
                 'Total' => 'float',
             ];
-            $refs = ['CustomerId' => function ($id) { return CustomerDAO::getInstance()->findByPk($id); }];
+            $refs = ['CustomerId' => CustomerDAO::class];
             parent::__construct('invoice', 'InvoiceId', $props, $refs);
         }
 

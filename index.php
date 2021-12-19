@@ -9,24 +9,14 @@
 <body>
     <h1>O, hai!</h1>
 
-    <p>
+    <pre>
         <?php
-        require_once(__DIR__ . '/models/customer.php');
+        require_once(__DIR__ . '/models/track.php');
 
-        $invoices = CustomerDAO::getInstance();
-        $data = [
-            'FirstName' => 'Test',
-            'LastName' => 'Test',
-            'Password' => 'pass',
-            'Email' => 'test',
-        ];
-        $test = $invoices->create($data);
-        $test['FirstName'] = 'TETAALKHDFKJAHDFLASDHF';
-        $invoices->update($test['CustomerId'], $test);
-
-        $test2 = $invoices->findByPk($test['CustomerId']);
-        print_r($test2);
+        $tracks = TrackDAO::getInstance();
+        $test = $tracks->findAll();
+        print_r($test);
         ?>
-    </p>
+    </pre>
 </body>
 </html>
