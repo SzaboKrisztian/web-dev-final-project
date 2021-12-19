@@ -1,0 +1,4 @@
+RewriteEngine On
+#Do not allow direct access to files inside this folder
+#RewriteCond %{REQUEST_FILENAME} !-f
+RewriteRule ^ index.php [QSA,L]
