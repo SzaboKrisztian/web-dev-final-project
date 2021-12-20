@@ -45,15 +45,14 @@ class Router {
             if ($this->isMatch($routeMethod, $routePath, $method, $path)) {
                 $rawJson = file_get_contents('php://input');
                 $json = json_decode($rawJson, true);
-                if (strlen($rawJson) > 0 && json_last_error() == JSON_ERROR_NONE) {
-                    $params = [
-                        'query' => $_GET,
-                        'body' => is_null($json) ? $_POST : $json,
-                        'path' => $this->parsePath($routePath, $path),
-                    ];
-                    $callback($params);
-                    return;
-                }
+                $body = (strlen($rawJson) > 0 && json_last_error() == JSON_ERROR_NONE) ? $json : $_POST;
+                $params = [
+                    'query' => $_GET,
+                    'body' => $body,
+                    'path' => $this->parsePath($routePath, $path),
+                ];
+                $callback($params);
+                return;
             }
         }
 

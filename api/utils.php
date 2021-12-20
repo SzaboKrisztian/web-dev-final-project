@@ -21,31 +21,46 @@
             ob_end_flush();
         }
     }
+
+    function getVar($params, $path, $default) {
+        $data = $params;
+        for ($i = 0; $i < count($path); $i += 1) {
+            if (!isset($data[$path[$i]])) {
+                return $default;
+            }
+            $data = $data[$path[$i]];
+        }
+        return $data;
+    }
     
     function validateTypes($rules) {
-        foreach (array_keys($rules) as $varName) {
-            global ${$varName};
-
-            $types = explode('|', $rules[$varName]);
+        foreach ($rules as $rule => $value) {
+            $types = explode('|', $rule);
             $valid = [];
             foreach ($types as $type) {
                 switch ($type) {
                     case 'null':
-                        $valid[] = is_null(${$varName});
+                        $valid[] = is_null($value);
                         break;
                     case 'int':
-                        $datapoint = is_string(${$varName}) ? intval(${$varName}, 10) : ${$varName};
+                        $datapoint = is_string($value) ? intval($value, 10) : $value;
                         $valid[] = is_int($datapoint);
                         break;
                     case 'str':
                     case 'string':
-                        $valid[] = is_string(${$varName});
+                        $valid[] = is_string($value);
+                        break;
+                    case 'bool':
+                        $valid[] = is_bool($value);
                         break;
                 }
+                if (in_array(true, $valid, true)) {
+                    break;
+                }
             }
-            if (!in_array(true, $valid, true)) {
-                Responde::badRequest();
-            }
+        }
+        if (!in_array(true, $valid, true)) {
+            Responde::badRequest();
         }
     }
 ?>

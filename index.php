@@ -11,11 +11,7 @@
 
     <pre>
         <?php
-        require_once(__DIR__ . '/models/track.php');
-
-        $tracks = TrackDAO::getInstance();
-        $test = $tracks->findAll();
-        print_r($test);
+            echo "test";
         ?>
     </pre>
 </body>

@@ -4,20 +4,20 @@
 
     $artists = ArtistDAO::getInstance();
 
-    class AristsController {
+    class ArtistsController {
         static function getAll(
             string|null $orderby = null,
-            bool|null $desc = false,
-            int|null $limit = 0,
-            int|null $offset = 0,
+            bool|null $desc = null,
+            int|null $limit = null,
+            int|null $offset = null,
         ) {
             global $artists;
 
             validateTypes([
-                'orderby' => 'string|null',
-                'desc' => 'bool|null',
-                'limit' => 'int|null',
-                'offset' => 'int|null',
+                'string|null' => $orderby,
+                'bool|null' => $desc,
+                'int|null' => $limit,
+                'int|null' => $offset,
             ]);
 
             return $artists->findAll(
