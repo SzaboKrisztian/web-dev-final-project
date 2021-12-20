@@ -1,132 +1,133 @@
 <?php
-/**
- * Router Capability for PHP 
- * Inspired by "Custom PHP Router w/o libraries" YouTube Video
- * @author Onescu Radu-Mihai
- */
+require_once(__DIR__ . '/utils.php');
 class Router {
-	private $routes = [];
-	private $headers = [];
-	private $callback_404;
+    private $routes;
+    private $headers;
+    private $notFoundCallback;
 
-	public function get($path, $callback) {
-		$this->add_route("GET", $path, $callback);
-	}
+    public function __construct($globalHeaders = [], $notFoundCallback = null) {
+        $this->routes = [];
+        $this->headers = $globalHeaders;
+        $this->notFoundCallback = $notFoundCallback;
+    }
 
-	public function post($path, $callback) {
-		$this->add_route("POST", $path, $callback);
-	}
+    public function get($url, $callback, $protected = null) {
+        $this->addRoute("GET", $url, $callback, $protected);
+    }
 
-	public function put($path, $callback) {
-		$this->add_route("PUT", $path, $callback);
-	}
+    public function post($url, $callback, $protected = null) {
+        $this->addRoute("POST", $url, $callback, $protected);
+    }
 
-	public function delete($path, $callback) {
-		$this->add_route("DELETE", $path, $callback);
-	}
+    public function put($url, $callback, $protected = null) {
+        $this->addRoute("PUT", $url, $callback, $protected);
+    }
 
-	public function set_global_headers($headers) {
-		$this->headers = $headers;
-	}
+    public function delete($url, $callback, $protected = null) {
+        $this->addRoute("DELETE", $url, $callback, $protected);
+    }
 
-	public function set_404_callback($callback) {
-		$this->callback_404 = $callback;
-	}
+    public function set404($callback) {
+        $this->notFoundCallback = $callback;
+    }
 
-	public function run() {
-		$request_path = $this->get_path();
-		$request_method = $_SERVER['REQUEST_METHOD'];
+    public function run() {
+        $method = $_SERVER['REQUEST_METHOD'];
+        $url = $this->getUrl();
+        $path = $url['path'];
 
-		$callback = null;
-		$parameters = [];
-		foreach ($this->routes as $route) {
-			//Check if methods match and if requested path is inside routes
-			if ($request_method == $route['method'] && $request_path == $route['path']) {
-				$callback = $route['callback'];
-				break;
-			} else {
-				$params = $this->search_path_including_parameters($request_path, $route['path']);
-				if($params) {
-					$parameters = $params;
-					$callback = $route['callback'];
-					break;
-				}
-			}
-		}
+        $this->addHeaders();
+        foreach ($this->routes as $route => [$callback, $protected]) {
+            if (!$this->ensureRole($protected)) {
+                Responde::unauthorized();
+            }
+            [$routeMethod, $routePath] = explode('@@', $route);
+            if ($this->isMatch($routeMethod, $routePath, $method, $path)) {
+                $rawJson = file_get_contents('php://input');
+                $json = json_decode($rawJson, true);
+                if (strlen($rawJson) > 0 && json_last_error() == JSON_ERROR_NONE) {
+                    $params = [
+                        'query' => $_GET,
+                        'body' => is_null($json) ? $_POST : $json,
+                        'path' => $this->parsePath($routePath, $path),
+                    ];
+                    $callback($params);
+                    return;
+                }
+            }
+        }
 
-		$callback = $callback ? $callback : $this->callback_404;
+        if ($this->notFoundCallback != null) {
+            ($this->notFoundCallback)();
+        } else {
+            Responde::notFound();
+        }
+    }
 
-		if (!$callback) {
-			header('HTTP/1.0 404 NOT FOUND');
-			return;
-		}
+    private function getUrl() {
+        $base = "/" . basename(__DIR__);
+        $url = substr($_SERVER['REQUEST_URI'], strlen($base));
+        return parse_url(strlen($url) > 1 ? rtrim($url, '/') : $url);
+    }
 
+    private function addRoute($method, $url, $callback, $protected = null) {
+        foreach (explode('/', $url) as $segment) {
+            if (str_starts_with($segment, '$') && !preg_match('/^\$[a-z][a-z0-9_]*$/i', $segment)) {
+                throw new Exception("Invalid path parameter name \"" . substr($segment, 1) . "\"; must be a legal PHP identifier.");
+            }
+        }
+        $this->routes["$method@@$url"] = [$callback, $protected];
+    }
 
+    private function ensureRole($role) {
+        return true;
+    }
 
-		$this->add_headers();
-		call_user_func_array($callback, [
-			array_merge($_GET, $_POST, $parameters)
-		]);
-	}
+    private function isMatch($routeMethod, $routePath, $reqMethod, $reqPath) {
+        if ($routeMethod === $reqMethod) {
+            $routeSegments = array_slice(explode('/', $routePath), 1);
+            $reqSegments = array_slice(explode('/', $reqPath), 1);
 
-	/**
-	 * Helper Functions
-	 */
-	private function add_route($method, $path, $callback) {
-		if (strlen($path) > 1) {
-			$path = rtrim($path, "/");
-		}
+            if (count($routeSegments) == count($reqSegments)) {
+                for ($i = 0; $i < count($routeSegments); $i += 1) {
+                    if (str_starts_with($routeSegments[$i], '$')) {
+                        continue;
+                    } else if ($routeSegments[$i] != $reqSegments[$i]) {
+                        return false;
+                    }
 
-		$this->routes[$method . $path] = [
-			'path' => $path,
-			'method' => $method,
-			'callback' => $callback
-		];
-	}
+                    return true;
+                }
+            }
+        }
 
-	private function get_path() {
-		//Get Path Parameteres from URL
-		$url = strtok($_SERVER['REQUEST_URI'], "?");
-		$url = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
+        return false;
+    }
 
-		//Remove the name of the folder where the file is located, and everything before it
-		$folder_name = '/' . basename(__DIR__);
-		$url = substr($url, strpos($url, $folder_name) + strlen($folder_name));
+    private function parsePath($route, $request) {
+        $routeSegments = array_slice(explode('/', $route), 1);
+        $reqSegments = array_slice(explode('/', $request), 1);
 
-		//If url path has more than one character and it ends in "/", remove the slash
-		//This is used to make sure we do not remove the "/" when that is the only path
-		if (strlen($url) > 1 && str_ends_with($url, '/')) {
-			$url = substr($url, 0, -1);
-		}
+        if (count($routeSegments) != count($reqSegments)) {
+            throw new Exception("Path parse error: unequal number of path segments");
+        }
 
-		return $url;
-	}
+        $params = [];
+        for ($i = 0; $i < count($routeSegments); $i += 1) {
+            if (str_starts_with($routeSegments[$i], '$')) {
+                $name = substr($routeSegments[$i], 1);
+                $value = $reqSegments[$i];
+                $params[$name] = $value;
+            }
+        }
 
-	private function add_headers() {
-		foreach ($this->headers as $header) {
-			header($header);
-		}
-	}
+        return $params;
+    }
 
-	private function search_path_including_parameters($request_path, $route_path) {
-		$request_parts = explode("/", ltrim($request_path, '/'));
-		$route_parts = explode("/", ltrim($route_path, '/'));
-		$params = [];
-
-		//Check if route has the same number of parts as the requested path
-		if (count($request_parts) != count($route_parts)) {
-			return;
-		}
-		foreach ($route_parts as $key => $route_part) {
-			//Check if route part starts with $ (meaning that it is a parameter)
-			if (str_starts_with($route_part, '$')) {
-				$params[substr($route_part, 1)] = $request_parts[$key];
-			}
-			//If route part is not a parameter and it is not equal to the requested part from same position exit
-			else if ($route_part != $request_parts[$key]) {
-				return;
-			}
-		}
-		return $params;
-	}
+    private function addHeaders() {
+        foreach ($this->headers as $header) {
+            header($header);
+        }
+    }
 }
+?>

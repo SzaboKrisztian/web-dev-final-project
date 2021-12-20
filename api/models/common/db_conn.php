@@ -4,7 +4,7 @@
 
         public function __construct()
         {
-            require(__DIR__ . '/db_config.php');
+            require(__DIR__ . '/../../../config/db_config.php');
         
             $dsn = "mysql:host=$host;dbname=$db;charset=utf8mb4";
         

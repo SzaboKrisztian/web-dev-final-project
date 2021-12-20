@@ -32,8 +32,6 @@
             }
 
             $query = "INSERT INTO $this->table_name (" . implode(',', array_keys($toInsert)) . ") values (" . implode(',', array_fill(0, count(array_keys($toInsert)), '?')) . ");";
-            var_dump($query);
-            var_dump($toInsert);
             $stmt = $this->pdo->prepare($query);
             $stmt->execute(array_values($toInsert));
 
@@ -75,15 +73,6 @@
             $stmt->execute([$id]);
 
             return $stmt->rowCount();
-        }
-
-        public function test() {
-            // include: ['CustomerId', 'FirstName'], exclude: ['City', 'State']
-            echo($this->generateFields(exclude: ['CustomerId', 'FirstName']));
-        }
-
-        private function generateWhere($where) {
-
         }
 
         // Could be changed to pass by reference, if more efficiency needed

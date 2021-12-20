@@ -1,35 +1,18 @@
 <?php
-require_once("router.php");
+require_once(__DIR__ . "/router.php");
+require_once(__DIR__ . "/controllers/artist.php");
 
-$router = new Router();
+$router = new Router(['Content-Type: application/json; charset=UTF-8']);
 
-$router->get("/", function () {
-	session_start();
-	var_dump($_SESSION);
-	die();
+$router->get('/artists', function ($params) {
+    // echo AristsController::getAll(
+    //     orderby: $params['query']['orderby'],
+    //     desc: $params['query']['desc'],
+    //     limit: $params['query']['limit'],
+    //     offset: $params['query']['offset'],
+    // );
+    echo "test";
 });
-
-$router->post('/auth/signin', function ($parameters) {
-	require_once('controllers/auth/signin.php');
-});
-
-$router->post('/auth/signup', function ($parameters) {
-	require_once('controllers/auth/signup.php');
-});
-
-$router->post("/auth/signout", function ($parameters) {
-	require_once('controllers/auth/signout.php');
-});
-
-$router->post("/auth/admin", function ($parameters) {
-	require_once('controllers/auth/admin.php');
-});
-
-$router->set_404_callback(function () {
-	header('HTTP/1.0 404 NOT FOUND');
-	echo json_encode(["response" => "Not found."]);
-});
-
-$router->set_global_headers(['Content-Type: application/json', 'Accept-version: v1']);
 
 $router->run();
+?>
