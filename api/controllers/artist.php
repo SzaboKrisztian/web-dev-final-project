@@ -10,6 +10,7 @@
             bool|null $desc = null,
             int|null $limit = null,
             int|null $offset = null,
+            string|null $query = null,
         ) {
             global $artists;
 
@@ -18,13 +19,18 @@
                 'bool|null' => $desc,
                 'int|null' => $limit,
                 'int|null' => $offset,
+                'string|null' => $query,
             ]);
+
+            $escaped = strtolower($artists->getPdo()->quote("%$query%"));
+            $where = $query ? "`Name` like $escaped" : null;
 
             return $artists->findAll(
                 orderby: $orderby,
                 desc: $desc,
                 limit: $limit,
                 offset: $offset,
+                where: $where,
             );
         }
 
@@ -37,6 +43,24 @@
             }
 
             return $artists->findByPk($id);
+        }
+
+        static function create($data) {
+            global $artists;
+
+            return $artists->create($data);
+        }
+
+        static function update($id, $data) {
+            global $artists;
+
+            return $artists->update($id, $data);
+        }
+
+        static function delete($id) {
+            global $artists;
+
+            return $artists->delete($id);
         }
     }
 ?>

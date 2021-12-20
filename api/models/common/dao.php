@@ -1,6 +1,6 @@
 <?php
     require_once(__DIR__ . '/db_conn.php');
-
+    require_once(__DIR__ . '/../../utils.php');
     abstract class DAO extends DB {
         protected $table_name;
         protected $primary_key;
@@ -18,7 +18,7 @@
         public function create($data) {
             $diff = array_diff_key($data, $this->props);
             if (count($diff) > 0) {
-                throw new Exception("Key Error: " . print_r($diff));
+                Responde::badRequest("Key Error: " . array_keys($diff)[0]);
             }
 
             $toInsert = [];
@@ -54,11 +54,20 @@
             $stmt = $this->pdo->query("SELECT " . $this->generateFields($include, $exclude) . " FROM $this->table_name WHERE $this->primary_key=$id;");
             $item = $stmt->fetch();
             
+            if (!$item) {
+                Responde::notFound();
+            }
+
             $item = $this->castTypes($item);
             return $skipRefs ? $item : $this->attachRefs([$item])[0];
         }
 
         public function update($id, $data) {
+            $diff = array_diff_key($data, $this->props);
+            if (count($diff) > 0) {
+                Responde::badRequest("Key Error: " . array_keys($diff)[0]);
+            }
+
             $updates = $this->generateUpdate($data);
             $query = "UPDATE $this->table_name SET $updates WHERE $this->primary_key=?;";
             $stmt = $this->pdo->prepare($query);
@@ -73,6 +82,10 @@
             $stmt->execute([$id]);
 
             return $stmt->rowCount();
+        }
+
+        public function getPdo() {
+            return $this->pdo;
         }
 
         // Could be changed to pass by reference, if more efficiency needed

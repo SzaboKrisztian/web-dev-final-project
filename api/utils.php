@@ -5,6 +5,7 @@
             http_response_code(404);
             echo '{"message":"URI not found."}';
             ob_end_clean();
+            exit();
         }
 
         static function unauthorized() {
@@ -12,13 +13,21 @@
             http_response_code(401);
             echo '{"message":"You\'re not authorized to perform this action."}';
             ob_end_flush();
+            exit();
         }
 
-        static function badRequest() {
+        static function badRequest($error = null) {
             header("HTTP/1.1 400 Bad Request");
             http_response_code(400);
-            echo '{"message":"Invalid request."}';
+            $res = [
+                'message' => 'Invalid request.'
+            ];
+            if ($error) {
+                $res['error'] = $error;
+            }
+            echo(json_encode($res));
             ob_end_flush();
+            exit();
         }
     }
 
@@ -54,13 +63,13 @@
                         $valid[] = is_bool($value);
                         break;
                 }
-                if (in_array(true, $valid, true)) {
+                if ($valid[-1]) {
                     break;
                 }
             }
-        }
-        if (!in_array(true, $valid, true)) {
-            Responde::badRequest();
+            if (!in_array(true, $valid, true)) {
+                Responde::badRequest();
+            }
         }
     }
 ?>
