@@ -38,17 +38,19 @@ class Router {
 
         $this->addHeaders();
         foreach ($this->routes as $route => [$callback, $protected]) {
-            if (!$this->ensureRole($protected)) {
-                Responde::unauthorized();
-            }
             [$routeMethod, $routePath] = explode('@@', $route);
             if ($this->isMatch($routeMethod, $routePath, $method, $path)) {
-                $rawJson = file_get_contents('php://input');
-                $json = json_decode($rawJson, true);
-                $body = (strlen($rawJson) > 0 && json_last_error() == JSON_ERROR_NONE) ? $json : $_POST;
+                if (!is_null($protected) && !$this->ensureRole($protected)) {
+                    Responde::unauthorized();
+                }
+                if (empty($_POST)) {
+                    $rawJson = file_get_contents('php://input');
+                    $json = json_decode($rawJson, true);
+                    $_POST = (strlen($rawJson) > 0 && json_last_error() == JSON_ERROR_NONE) ? $json : [];
+                }
                 $params = [
                     'query' => $_GET,
-                    'body' => $body,
+                    'body' => $_POST,
                     'path' => $this->parsePath($routePath, $path),
                 ];
                 $callback($params);
@@ -79,7 +81,11 @@ class Router {
     }
 
     private function ensureRole($role) {
-        return true;
+        if (session_status() == PHP_SESSION_NONE) {
+            session_start();
+        }
+
+        return isset($_SESSION['role']) && $_SESSION['role'] == $role;
     }
 
     private function isMatch($routeMethod, $routePath, $reqMethod, $reqPath) {

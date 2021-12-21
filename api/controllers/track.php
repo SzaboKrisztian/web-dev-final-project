@@ -1,10 +1,10 @@
 <?php
-    require_once(__DIR__ . "/../models/artist.php");
+    require_once(__DIR__ . "/../models/track.php");
     require_once(__DIR__ . "/../utils.php");
 
-    $artists = ArtistDAO::getInstance();
+    $tracks = TrackDAO::getInstance();
 
-    class ArtistController {
+    class TrackController {
         static function getAll(
             string|null $orderby = null,
             bool|null $desc = null,
@@ -12,7 +12,7 @@
             int|null $offset = null,
             string|null $query = null,
         ) {
-            global $artists;
+            global $tracks;
 
             validateTypes([
                 'string|null' => $orderby,
@@ -22,10 +22,10 @@
                 'string|null' => $query,
             ]);
 
-            $escaped = strtolower($artists->getPdo()->quote("%$query%"));
+            $escaped = strtolower($tracks->getPdo()->quote("%$query%"));
             $where = $query ? "`Name` like $escaped" : null;
 
-            return $artists->findAll(
+            return $tracks->findAll(
                 orderby: $orderby,
                 desc: $desc,
                 limit: $limit,
@@ -35,32 +35,32 @@
         }
 
         static function getOne($id) {
-            global $artists;
+            global $tracks;
 
             $id = is_string($id) ? intval($id, 10) : $id;
             if (!is_int($id)) {
                 throw new Exception("Invalid id");
             }
 
-            return $artists->findByPk($id);
+            return $tracks->findByPk($id);
         }
 
         static function create($data) {
-            global $artists;
+            global $tracks;
 
-            return $artists->create($data);
+            return $tracks->create($data);
         }
 
         static function update($id, $data) {
-            global $artists;
+            global $tracks;
 
-            return $artists->update($id, $data);
+            return $tracks->update($id, $data);
         }
 
         static function delete($id) {
-            global $artists;
+            global $tracks;
 
-            return $artists->delete($id);
+            return $tracks->delete($id);
         }
     }
 ?>

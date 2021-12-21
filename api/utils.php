@@ -41,6 +41,17 @@
         }
         return $data;
     }
+
+    function extractQueryParams($params) {
+        $result = [
+            'orderby' => getVar($params, ['query', 'orderby'], null),
+            'desc' => getVar($params, ['query', 'desc'], null),
+            'limit' => getVar($params, ['query', 'limit'], null),
+            'offset' => getVar($params, ['query', 'offset'], null),
+            'query' => getVar($params, ['query', 'query'], null),
+        ];
+        return $result;
+    }
     
     function validateTypes($rules) {
         foreach ($rules as $rule => $value) {
@@ -63,7 +74,7 @@
                         $valid[] = is_bool($value);
                         break;
                 }
-                if ($valid[-1]) {
+                if (count($valid) > 0 && $valid[count($valid) - 1]) {
                     break;
                 }
             }

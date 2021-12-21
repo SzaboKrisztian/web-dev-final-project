@@ -30,5 +30,11 @@
 
             return self::$instance;
         }
+
+        function findByEmail($email) {
+            $sanitized = $this->pdo->quote($email);
+            $items = $this->findAll(where: "Email like $sanitized");
+            return count($items) == 1 ? $items[0] : null;
+        }
     }
 ?>

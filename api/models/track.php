@@ -1,7 +1,7 @@
 <?php
     require_once(__DIR__ . '/common/dao.php');
     require_once(__DIR__ . '/album.php');
-    require_once(__DIR__ . '/mediaType.php');
+    require_once(__DIR__ . '/mediatype.php');
     require_once(__DIR__ . '/genre.php');
 
     class TrackDAO extends DAO {

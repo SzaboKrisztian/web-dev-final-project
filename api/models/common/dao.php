@@ -128,7 +128,7 @@
             return $items;
         }
 
-        private function generateOlo(string|null $orderby, bool|null $desc = false, int|null $limit, int|null $offset) {
+        private function generateOlo(string|null $orderby = null, bool|null $desc = false, int|null $limit = null, int|null $offset = null) {
             $result = ""; 
             
             if (!is_null($orderby)) {
