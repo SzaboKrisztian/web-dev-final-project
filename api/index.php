@@ -116,6 +116,27 @@ $router->post('/login', function($params) {
     echo "{\"message\":\"Successfully logged in.\"}";
 });
 
+// User routes
+
+$router->post('/customer', function($params) {
+    $id = isset($_SESSION['userData']['CustomerId']) ? $_SESSION['userData']['CustomerId'] : null;
+
+    if (is_null($id)) {
+        Responde::unauthorized();
+    }
+
+    $customers = CustomerDAO::getInstance();
+
+    $data = getVar($params, ['body'], null);
+
+    if (empty($data)) {
+        Responde::badRequest("No data provided");
+    }
+
+    $result = $customers->update($id, $data);
+    echo("{\"rowsAffected\":$result}");
+}, 'user');
+
 // Admin routes
 
 $router->post('/artists', function($params) {

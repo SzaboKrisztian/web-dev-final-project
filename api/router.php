@@ -85,7 +85,7 @@ class Router {
             session_start();
         }
 
-        return isset($_SESSION['role']) && $_SESSION['role'] == $role;
+        return isset($_SESSION['role']) && ($_SESSION['role'] == 'admin' ? true : $_SESSION['role'] == $role);
     }
 
     private function isMatch($routeMethod, $routePath, $reqMethod, $reqPath) {

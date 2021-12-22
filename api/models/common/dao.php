@@ -81,7 +81,12 @@
             $stmt = $this->pdo->prepare($query);
             $stmt->execute([$id]);
 
-            return $stmt->rowCount();
+            if ($stmt->rowCount() == 0) {
+                Responde::notFound();
+            } else {
+                return 1;
+            }
+
         }
 
         public function getPdo() {
