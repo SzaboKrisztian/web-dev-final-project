@@ -7,6 +7,8 @@ let timeout;
 let items;
 let editing;
 let relatedItems;
+let relationEditing;
+let newRelationTarget;
 
 function populateList(data) {
     const itemList = document.getElementById('itemList');
@@ -88,7 +90,7 @@ function doSearch(event) {
 
 function doEdit(index) {
     if (index < items.length) {
-        editing = items[index];
+        editing = JSON.parse(JSON.stringify(items[index]));
         document.getElementById('modalTitle').innerHTML = `Edit ${entity.toLowerCase()} ID ${editing[pkName]}`;
         document.getElementById('btn-delete').style.visibility = 'visible';
         populateModal();
@@ -166,13 +168,82 @@ function populateModal() {
         if (req === 'req') {
             input.setAttribute('required', '');
         }
-        input.value = editing === null ? '' : editing[key];
+        if (type.startsWith('rel-')) {
+            const target = type.substring(4);
+            const key2 = key.substring(0, key.length - 2);
+            const name = key2 === 'Album' ? 'Title' : 'Name';
+            input.value = editing === null ? '' : editing[key2][name];
+
+            input.addEventListener('focus', () => editRelation(target, input, key, name));
+        } else {
+            input.value = editing === null ? '' : editing[key];
+        }
         const label = document.createElement('label');
         label.innerHTML = labelTxt;
         document.getElementById('modalInputs').appendChild(label);
         document.getElementById('modalInputs').appendChild(input);
     });
 }
+
+function showRelModal() {
+    document.getElementById('relationContainer').style.display = 'flex';
+}
+
+function hideRelModal() {
+    relatedItems = null;
+    document.getElementById('relationContainer').style.display = 'none';
+}
+
+function editRelation(target, input, key, nameProp) {
+    get(`/${target}`).then(data => {
+        newRelationTarget = null;
+        relatedItems = data;
+        relationEditing = [input, key, nameProp];
+        populateRels(relatedItems);
+        document.getElementById('relFilter').value = '';
+        document.getElementById('modalRelTitle').innerHTML = `Pick ${target.substring(0, target.length - 1)}`;
+        showRelModal();
+    });
+}
+
+function doFilterRels(event) {
+    const text = event?.target?.value ?? null;
+
+    if (timeout !== undefined) {
+        clearTimeout(timeout);
+    }
+
+    if (text && text.length > 0) {
+        const nameKey = relationEditing[2];
+        const items = relatedItems.filter(i => i[nameKey] && i[nameKey].includes(text));
+        populateRels(items);
+    } else {
+        populateRels(relatedItems);
+    }
+}
+
+function populateRels(items) {
+    items = items.length > 10 ? items.slice(0, 10) : items;
+    const container = document.getElementById('modalRelResults');
+    container.innerHTML = '';
+    
+    items.forEach(item => {
+        const elem = document.createElement('li');
+        const pk = relationEditing[1];
+        const name = relationEditing[2];
+        elem.innerHTML = `${item[pk]}: ${item[name]}`
+        elem.className = 'relationItem';
+        elem.addEventListener('click', () => {
+            editing[pk] = item[pk];
+            editing[pk.substring(0, pk.length - 2)] = item;
+            console.log(editing);
+            populateModal();
+            hideRelModal();
+        });
+        container.appendChild(elem);
+    });
+}
+
 
 function searchFunc(text) {
     const query = `${endpoint}?limit=${PAGE_SIZE}${text && text.length > 0 ? `&query=${encodeURIComponent(text)}` : ''}`;
@@ -196,6 +267,10 @@ function hideModal() {
     editing = null;
     document.getElementById('editContainer').style.display = 'none';
     document.querySelector('body').style.overflow = 'auto';
+} 
+
+function logout() {
+    get('/logout').then(() => document.location.reload());
 }
 
 window.addEventListener('DOMContentLoaded', () => {
@@ -207,6 +282,7 @@ window.addEventListener('DOMContentLoaded', () => {
     document.getElementById('btn-submit').addEventListener('click', doSubmit);
     document.getElementById('btn-delete').addEventListener('click', doDelete);
     document.getElementById('btn-create').addEventListener('click', doCreate);
+    document.getElementById('btn-logout').addEventListener('click', logout);
     let html = '<tr>';
     tableHeadings.forEach(heading => html += `<th>${heading}</th>`);
     html += '<th>Edit</th></tr>';
@@ -214,4 +290,8 @@ window.addEventListener('DOMContentLoaded', () => {
     html = `<col id="col-id">${'<col>'.repeat(tableHeadings.length - 1)}<col id="col-edit">`;
     document.getElementById('colgroups').innerHTML = html;
     searchFunc().then(data => populateList(data));
+    document.getElementById('relationContainer').addEventListener('click', hideRelModal);
+    document.getElementById('modalRel').addEventListener('click', (e) => {e.stopImmediatePropagation()});
+    document.getElementById('modalRelClose').addEventListener('click', hideRelModal);
+    document.getElementById('relFilter').addEventListener('input', doFilterRels);
 });

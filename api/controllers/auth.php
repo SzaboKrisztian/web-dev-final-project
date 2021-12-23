@@ -47,5 +47,14 @@ class AuthController {
             echo "{\"message\":\"Successfully logged out.\"}";
         }
     }
+
+    static function signup($userData) {
+        $customers = CustomerDAO::getInstance(); 
+
+        $userData['Password'] = password_hash($userData['Password'], PASSWORD_DEFAULT);
+
+        $res = $customers->create($userData);
+        return $res;
+    }
 }
 ?>

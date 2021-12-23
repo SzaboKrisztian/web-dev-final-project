@@ -28,7 +28,7 @@
                     continue;
                 }
 
-                $toInsert["`$key`"] = isset($data[$key]) ? $data[$key] : null;
+                $toInsert["`$key`"] = isset($data[$key]) ? ($this->props[$key] == 'str' ? $this->sanitize_message($data[$key]) : $data[$key]) : null;
             }
 
             $query = "INSERT INTO $this->table_name (" . implode(',', array_keys($toInsert)) . ") values (" . implode(',', array_fill(0, count(array_keys($toInsert)), '?')) . ");";
@@ -65,7 +65,11 @@
         public function update($id, $data) {
             $diff = array_diff_key($data, $this->props);
             if (count($diff) > 0) {
-                Responde::badRequest("Key Error: " . array_keys($diff)[0]);
+                foreach ($diff as $key => $value) {
+                    if (!in_array($key . "Id", array_keys($this->props))) {
+                        Responde::badRequest("Key Error: " . array_keys($diff)[0]);
+                    }
+                }
             }
 
             $updates = $this->generateUpdate($data);
@@ -178,23 +182,27 @@
 
         private function generateUpdate(array $data) {
             $result = [];
-            foreach($this->props as $key => $type) {
-                if (!array_key_exists($key, $this->props)) {
-                    throw new Exception("Key error: " . $key);
-                }
-
-                if ("`$key`" == $this->primary_key) {
+            foreach ($this->props as $key => $type) {
+                if (!array_key_exists($key, $this->props) || "`$key`" == $this->primary_key) {
                     continue;
                 }
 
-                $value = $data[$key];
-                if ($this->props[$key] == 'str') {
-                    $result[] = "`$key`=" . (isset($data[$key]) ? "\"$value\"" : "NULL");
-                } else {
-                    $result[] = "`$key`=$value";
+                if (isset($data[$key])) {
+                    $value = $data[$key];
+                    if ($this->props[$key] == 'str') {
+                        $result[] = "`$key`=" . (isset($data[$key]) ? '"'. $this->sanitize_message($value) .'"' : "NULL");
+                    } else {
+                        $result[] = "`$key`=" . (isset($data[$key]) ? $value : "NULL");
+                    }
                 }
             }
             return implode(',', $result);
+        }
+
+        private function sanitize_message($message) {
+            if (is_string($message)) {
+                return htmlspecialchars($message, ENT_QUOTES, 'UTF-8');
+            }
         }
 
         private function addBackticks($items) {

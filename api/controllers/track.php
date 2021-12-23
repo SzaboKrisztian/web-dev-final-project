@@ -34,6 +34,17 @@
             );
         }
 
+        static function getAllByAlbumId($albumId) {
+            global $tracks;
+
+            $albumId = is_string($albumId) ? intval($albumId) : $albumId;
+            if (!is_int($albumId)) {
+                throw new Exception("Invalid id");
+            }
+
+            return $tracks->findAll('AlbumId='.$albumId);
+        }
+
         static function getOne($id) {
             global $tracks;
 

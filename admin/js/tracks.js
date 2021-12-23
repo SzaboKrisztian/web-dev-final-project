@@ -6,9 +6,9 @@ const tableHeadings = ['Id', 'Name', 'Album', 'Composer', 'Genre', 'Type', 'Leng
 // [id, type, label, required]
 const inputs = {
     Name: ['input-name', 'text', 'Track name', 'req'],
-    AlbumId: ['input-album-id', 'text', 'Album'],
-    MediaTypeId: ['input-media-id', 'text', 'Type', 'req'],
-    GenreId: ['input-genre-id', 'text', 'Genre'],
+    AlbumId: ['input-album-id', 'rel-albums', 'Album'],
+    MediaTypeId: ['input-media-id', 'rel-mediatypes', 'Type', 'req'],
+    GenreId: ['input-genre-id', 'rel-genres', 'Genre'],
     Composer: ['input-composer', 'text', 'Composer'],
     Milliseconds: ['input-length', 'text', 'Length (ms)'],
     Bytes: ['input-size', 'text', 'Size (bytes)'],

@@ -6,7 +6,7 @@ const tableHeadings = ['Id', 'Title', 'Artist'];
 // [id, type, label, required]
 const inputs = {
     Title: ['input-title', 'text', 'Album title', 'req'],
-    ArtistId: ['input-artist-id', 'rel-artist', 'Artist', 'req'],
+    ArtistId: ['input-artist-id', 'rel-artists', 'Artist', 'req'],
 };
 
 function createRow(item, index) {

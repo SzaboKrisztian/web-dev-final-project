@@ -18,6 +18,8 @@
         <p id="pagination"></p>
 
         <button id="btn-create">Add new</button>
+
+        <button id="btn-logout">Log out</button>
         
         <div id="editContainer">
             <div id="modal">
@@ -42,10 +44,10 @@
                     <p id="modalRelTitle"></p>
                     <p id="modalRelClose">×</p>
                 </div>
-                <input placeholder="Filter" id="search">
-                <div id="modalRelResults">
+                <input placeholder="Filter" id="relFilter">
+                <ul id="modalRelResults">
 
-                </div>
+                </ul>
             </div>
         </div>
 
