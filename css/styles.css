@@ -14,17 +14,99 @@ body {
     flex-direction: column;
 }
 
+nav {
+    display: flex;
+    flex-direction: row;
+}
+
+nav a {
+    flex: 1;
+    text-align: center;
+    text-decoration: none;
+    font-weight: 600;
+    margin-bottom: 10px;
+    color: var(--primary);
+}
+
+nav a:hover {
+    text-decoration: underline;
+}
+
 #listContainer {
     display: flex;
 }
 
-#navigation {
+#pagination {
     text-align: center;
 }
 
 #search {
     margin-bottom: 10px;
 }
+
+col:nth-child(1) {
+    flex: 1;
+}
+
+#col-id, #col-edit {
+    width: 1%;
+}
+
+#table {
+    width: 100%;
+}
+
+#table td:nth-child(n+3), th:nth-child(n+3) {
+    display: none;
+}
+
+#table td:last-child, th:last-child {
+    display: table-cell;
+}
+
+#itemList > tr:nth-child(odd) {
+    background-color: var(--secondaryDark);
+}
+
+#itemList tr td {
+    text-align: center;
+}
+
+.title {
+    font-size: larger;
+    font-weight: 800;
+    text-align: center;
+    margin-bottom: 20px;
+    margin-top: 0px;
+}
+
+@media only screen and (min-width: 480px) {
+    #table td:nth-child(-n+3), th:nth-child(-n+3) {
+        display: table-cell;
+    }
+    
+    #table td:last-child, th:last-child {
+        display: table-cell;
+    }
+}
+
+@media only screen and (min-width: 720px) {
+    #table td:nth-child(-n+4), th:nth-child(-n+4) {
+        display: table-cell;
+    }
+    
+    #table td:last-child, th:last-child {
+        display: table-cell;
+    }
+}
+
+@media only screen and (min-width: 1024px) {
+    #table td:nth-child(n), th:nth-child(n) {
+        display: table-cell;
+    }
+}
+
+/* Edit/create modal */
 
 #editContainer {
     display: none;
@@ -80,14 +162,6 @@ body {
     margin-bottom: 5px;
 }
 
-.modalLabel {
-
-}
-
-.modalInput {
-
-}
-
 #modalButtons {
     display: flex;
     justify-content: space-between;
@@ -98,22 +172,43 @@ body {
     width: 25%;
 }
 
-#col-id {
-    width: 1%;
-}
+/* Manage relation modal */
 
-#col-edit {
-    width: 1%;
-}
-
-#table {
+#relationContainer {
+    display: none;
+    justify-content: center;
+    align-items: center;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 4;
+    background-color: rgba(0, 0, 0, .66);
     width: 100%;
+    height: 100%;
 }
 
-#itemList > tr:nth-child(odd) {
-    background-color: var(--secondaryDark);
+#modalRel {
+    background-color: var(--secondary);
+    border-radius: 5px;
+    max-height: 80%;
+    overflow-y: auto;
+    width: 90%;
+    display: flex;
+    flex-direction: column;
+    padding: 10px;
+    box-shadow: 0px 0px 10px var(--neutral);
 }
 
-#itemList tr td {
+#modalRelHeader {
+    display: flex;
+    flex-direction: row;
+}
+
+#modalRelHeader > p:first-child {
     text-align: center;
+    flex: 1;
+}
+
+#modalRelHeader > p:last-child {
+    flex: 0;
 }

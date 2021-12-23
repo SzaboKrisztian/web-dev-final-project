@@ -1,5 +1,8 @@
-<body>
-        <?php require(__DIR__ . "/navigation.php"); ?>
+        <nav>
+            <a href="/admin/artists.php">Artists</a>
+            <a href="/admin/albums.php">Albums</a>
+            <a href="/admin/tracks.php">Tracks</a>
+        </nav>
 
         <input placeholder="Filter" id="search">
         <div id="listContainer">
@@ -12,7 +15,7 @@
             </table>
         </div>
 
-        <p id="navigation"></p>
+        <p id="pagination"></p>
 
         <button id="btn-create">Add new</button>
         
@@ -29,6 +32,19 @@
                     <button id="btn-reset">Reset</button>
                     <button id="btn-submit">Submit</button>
                     <button id="btn-delete">Delete</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="relationContainer">
+            <div id="modalRel">
+                <div id="modalRelHeader">
+                    <p id="modalRelTitle"></p>
+                    <p id="modalRelClose">×</p>
+                </div>
+                <input placeholder="Filter" id="search">
+                <div id="modalRelResults">
+
                 </div>
             </div>
         </div>

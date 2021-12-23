@@ -6,6 +6,7 @@ let page = 0;
 let timeout;
 let items;
 let editing;
+let relatedItems;
 
 function populateList(data) {
     const itemList = document.getElementById('itemList');
@@ -24,7 +25,7 @@ function buildNav() {
     if (page !== null) {
         let prev = null;
         let next = null;
-        const nav = document.getElementById('navigation');
+        const nav = document.getElementById('pagination');
         nav.innerHTML = '';
         if (page > 0) {
             prev = document.createElement('a');
@@ -88,7 +89,7 @@ function doSearch(event) {
 function doEdit(index) {
     if (index < items.length) {
         editing = items[index];
-        setModalTitleEdit(editing[pkName]);
+        document.getElementById('modalTitle').innerHTML = `Edit ${entity.toLowerCase()} ID ${editing[pkName]}`;
         document.getElementById('btn-delete').style.visibility = 'visible';
         populateModal();
         showModal();
@@ -97,7 +98,7 @@ function doEdit(index) {
 
 function doCreate() {
     editing = null;
-    setModalTitleCreate();
+    document.getElementById('modalTitle').innerHTML = `Add new ${entity.toLowerCase()}`;
     document.getElementById('btn-delete').style.visibility = 'hidden';
     populateModal();
     showModal();
@@ -105,8 +106,9 @@ function doCreate() {
 
 function doSubmit() {
     const data = {};
-    let error = false;
-    Object.keys(inputs).forEach(key => {
+    const keys = Object.keys(inputs);
+    for (let i = 0; i < keys.length; i += 1) {
+        const key = keys[i];
         const elemId = inputs[key][0];
         const req = inputs[key][3] === 'req';
         const value = document.getElementById(elemId).value;
@@ -118,8 +120,7 @@ function doSubmit() {
         if (editing !== null ? value !== editing[key] : true) {
             data[key] = value;
         }
-    });
-    if (error) return;
+    }
     if (editing === null) {
         post(endpoint, data)
             .then(res => {
@@ -158,11 +159,12 @@ function populateModal() {
     document.getElementById('modalInputs').innerHTML = '';
     Object.keys(inputs).forEach(key => {
         const [elemId, type, labelTxt, req] = inputs[key];
+
         const input = document.createElement('input');
         input.setAttribute('id', elemId);
-        input.setAttribute('type', type);
+        input.setAttribute('type', type.startsWith('rel-') ? 'text' : type);
         if (req === 'req') {
-            input.setAttribute('required', true);
+            input.setAttribute('required', '');
         }
         input.value = editing === null ? '' : editing[key];
         const label = document.createElement('label');
@@ -170,6 +172,19 @@ function populateModal() {
         document.getElementById('modalInputs').appendChild(label);
         document.getElementById('modalInputs').appendChild(input);
     });
+}
+
+function searchFunc(text) {
+    const query = `${endpoint}?limit=${PAGE_SIZE}${text && text.length > 0 ? `&query=${encodeURIComponent(text)}` : ''}`;
+    return get(query);
+}
+
+function goToPage(num) {
+    get(`${endpoint}?limit=${PAGE_SIZE}&offset=${num * PAGE_SIZE}`)
+        .then(data => {
+            page = num;
+            populateList(data);
+        });
 }
 
 function showModal() {
