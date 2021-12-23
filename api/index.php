@@ -6,6 +6,8 @@ require_once(__DIR__ . "/controllers/album.php");
 require_once(__DIR__ . "/controllers/track.php");
 require_once(__DIR__ . "/controllers/auth.php");
 require_once(__DIR__ . "/controllers/cart.php");
+require_once(__DIR__ . "/controllers/genre.php");
+require_once(__DIR__ . "/controllers/mediatype.php");
 
 $router = new Router(['Content-Type: application/json; charset=UTF-8']);
 
@@ -76,7 +78,7 @@ $router->get('/tracks/$id', function($params) {
 }, 'user');
 
 $router->get('/genres', function($params) {
-    $data = GenreController::getAll(...extractQueryParams($params));
+    $data = GenreController::getAll();
     echo(json_encode($data));
 }, 'user');
 
@@ -88,7 +90,7 @@ $router->get('/genres/$id', function($params) {
 }, 'user');
 
 $router->get('/mediatypes', function($params) {
-    $data = MediaTypeController::getAll(...extractQueryParams($params));
+    $data = MediaTypeController::getAll();
     echo(json_encode($data));
 }, 'user');
 

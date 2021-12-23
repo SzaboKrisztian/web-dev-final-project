@@ -1,6 +1,8 @@
 <?php
     require(__DIR__ . "/../header.php");
-    session_start();
+    if (session_status() == PHP_SESSION_NONE) {
+        session_start();
+    }
 ?>
     <label for="">Password</label>
     <input type="password" id="password">

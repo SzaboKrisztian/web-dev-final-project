@@ -162,9 +162,9 @@ function populateModal() {
     Object.keys(inputs).forEach(key => {
         const [elemId, type, labelTxt, req] = inputs[key];
 
-        const input = document.createElement('input');
+        let input = document.createElement('input');
         input.setAttribute('id', elemId);
-        input.setAttribute('type', type.startsWith('rel-') ? 'text' : type);
+        input.setAttribute('type', type.startsWith('rel-') ? 'hidden' : type);
         if (req === 'req') {
             input.setAttribute('required', '');
         }
@@ -172,8 +172,13 @@ function populateModal() {
             const target = type.substring(4);
             const key2 = key.substring(0, key.length - 2);
             const name = key2 === 'Album' ? 'Title' : 'Name';
-            input.value = editing === null ? '' : editing[key2][name];
-
+            input.value = editing === null ? '' : editing[key];
+            
+            document.getElementById('modalInputs').appendChild(input);
+            
+            input = document.createElement('input');
+            input.setAttribute('id', elemId.substring(0, elemId.length - 3));
+            input.value = editing[key2][name];
             input.addEventListener('focus', () => editRelation(target, input, key, name));
         } else {
             input.value = editing === null ? '' : editing[key];
@@ -234,16 +239,16 @@ function populateRels(items) {
         elem.innerHTML = `${item[pk]}: ${item[name]}`
         elem.className = 'relationItem';
         elem.addEventListener('click', () => {
-            editing[pk] = item[pk];
-            editing[pk.substring(0, pk.length - 2)] = item;
-            console.log(editing);
-            populateModal();
+            console.log(item);
+            const hiddenId = inputs[pk][0];
+            const visId = hiddenId.substring(0, hiddenId.length - 3);
+            document.getElementById(hiddenId).value = item[pk];
+            document.getElementById(visId).value = item[name];
             hideRelModal();
         });
         container.appendChild(elem);
     });
 }
-
 
 function searchFunc(text) {
     const query = `${endpoint}?limit=${PAGE_SIZE}${text && text.length > 0 ? `&query=${encodeURIComponent(text)}` : ''}`;
