@@ -211,7 +211,7 @@ $router->put('/customer', function($params) {
         Responde::badRequest("No data provided");
     }
     
-    if (isset($data['Password'])) {
+    if (isset($data['Password']) && strlen($data['Password']) > 0) {
         $data['Password'] = password_hash($data['Password'],  PASSWORD_DEFAULT);
     }
 

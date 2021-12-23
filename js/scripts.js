@@ -239,6 +239,7 @@ window.addEventListener('DOMContentLoaded', () => {
     document.getElementById('btn-cart').addEventListener('click', showCart);
     document.getElementById('btn-clear').addEventListener('click', clearCart);
     document.getElementById('btn-submit').addEventListener('click', doCheckout);
+    document.getElementById('btn-editacc').addEventListener('click', () => document.location.href = '/edit.php');
     document.getElementById('modalContainer').addEventListener('click', hideModal);
     document.getElementById('modal').addEventListener('click', (e) => {e.stopImmediatePropagation()});
     document.getElementById('modalClose').addEventListener('click', hideModal);
