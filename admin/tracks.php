@@ -8,7 +8,7 @@
 ?>
     <body>
         <p class="title">Manage <?=$entity?></p>
-        <? require(__DIR__ . "/common.php"); ?>
+        <?php require(__DIR__ . "/common.php"); ?>
 
         <script src="/admin/js/<?= $entity ?>.js"></script>
     </body>
