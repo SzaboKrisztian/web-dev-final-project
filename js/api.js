@@ -1,12 +1,17 @@
-const debug = false;
+const debug = true;
 
 function get(endpoint) {
     return fetch(`${apiRoot}${endpoint}`, {
         method: 'GET',
         credentials: 'include',
-    }).then(res => {
-        if (debug) console.log(`GET ${endpoint}:`, res);
-        return res.json();
+    }).then(async res => {
+        if (debug) {
+            const body = await res.text();
+            console.log(`GET ${endpoint}:`, { res, body });
+            return JSON.parse(body);
+        } else {
+            return res.json();
+        }
     });
 }
 
@@ -16,9 +21,14 @@ function post(endpoint, data) {
         headers: {"Content-type": "application/json; charset=UTF-8"},
         body: JSON.stringify(data),
         credentials: 'include',
-    }).then(res => {
-        if (debug) console.log(`POST ${endpoint}:`, res);
-        return res.json();
+    }).then(async res => {
+        if (debug) {
+            const body = await res.text();
+            console.log(`POST ${endpoint}:`, { res, body });
+            return JSON.parse(body);
+        } else {
+            return res.json();
+        }
     });
 }
 
@@ -28,9 +38,14 @@ function put(endpoint, data) {
         headers: {"Content-type": "application/json; charset=UTF-8"},
         body: JSON.stringify(data),
         credentials: 'include',
-    }).then(res => {
-        if (debug) console.log(`PUT ${endpoint}:`, res);
-        return res.json();
+    }).then(async res => {
+        if (debug) {
+            const body = await res.text();
+            console.log(`PUT ${endpoint}:`, { res, body });
+            return JSON.parse(body);
+        } else {
+            return res.json();
+        }
     });
 }
 
@@ -38,8 +53,13 @@ function del(endpoint) {
     return fetch(`${apiRoot}${endpoint}`, {
         method: 'DELETE',
         credentials: 'include',
-    }).then(res => {
-        if (debug) console.log(`DELETE ${endpoint}:`, res);
-        return res.json();
+    }).then(async res => {
+        if (debug) {
+            const body = await res.text();
+            console.log(`DELETE ${endpoint}:`, { res, body });
+            return JSON.parse(body);
+        } else {
+            return res.json();
+        }
     });
 }

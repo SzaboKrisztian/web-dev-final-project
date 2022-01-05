@@ -9,7 +9,10 @@ require_once(__DIR__ . "/controllers/cart.php");
 require_once(__DIR__ . "/controllers/genre.php");
 require_once(__DIR__ . "/controllers/mediatype.php");
 
-$router = new Router(['Content-Type: application/json; charset=UTF-8']);
+$router = new Router([
+    'Content-Type: application/json; charset=UTF-8',
+    'Accept-version: v1'
+]);
 
 if (session_status() == PHP_SESSION_NONE) {
     session_start();

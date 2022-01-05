@@ -18,7 +18,7 @@
                 'InvoiceId' => InvoiceDAO::class,
                 'TrackId' => TrackDAO::class,
             ];
-            parent::__construct('track', 'TrackId', $props, $refs);
+            parent::__construct('invoiceline', 'InvoiceLineId', $props, $refs);
         }
 
         static public function getInstance() {

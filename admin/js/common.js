@@ -137,7 +137,6 @@ function doSubmit() {
         const id = editing[pkName];    
         put(`${endpoint}/${id}`, data)
             .then(res => {
-                console.log(res);
                 alert(`${entity} entry successfully updated.`);
                 goToPage(page);
                 hideModal();
@@ -239,7 +238,6 @@ function populateRels(items) {
         elem.innerHTML = `${item[pk]}: ${item[name]}`
         elem.className = 'relationItem';
         elem.addEventListener('click', () => {
-            console.log(item);
             const hiddenId = inputs[pk][0];
             const visId = hiddenId.substring(0, hiddenId.length - 3);
             document.getElementById(hiddenId).value = item[pk];
