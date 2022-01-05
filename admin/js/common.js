@@ -61,12 +61,12 @@ function buildNav() {
             nav.appendChild(next);
         }
     } else {
-        document.getElementById('navigation').innerHTML = '';
+        document.getElementById('pagination').innerHTML = '';
     }
 }
 
 function hideNav() {
-    document.getElementById('navigation').style.display = 'none';
+    document.getElementById('pagination').style.display = 'none';
 }
 
 function doSearch(event) {
